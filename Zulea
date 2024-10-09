@@ -1,0 +1,148 @@
+namespace Prelim_Project
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            // Create a 2-dimensional array with 3 rows and 3 columns (3x3)
+            char[,] board = new char[3, 3] { { ' ', ' ', ' ' }, { ' ', ' ', ' ' }, { ' ', ' ', ' ' } };
+
+            // Lists to store the moves made by the player and computer
+            List<(int, int)> playerMoves = new List<(int, int)>();
+            List<(int, int)> computerMoves = new List<(int, int)>();
+
+            // Queue to store moves (FIFO)
+            Queue<(int, int)> queue = new Queue<(int, int)>();
+
+            // Generate a random move for the computer
+            Random random = new Random();
+            int computerRow = random.Next(0, 3);
+            int computerColumn = random.Next(0, 3);
+
+            while (true)
+            {
+                // Display the board, to see player's move, read the player's input
+                DisplayBoard(board);
+                Console.WriteLine("Player Move: <row>,<column>");
+                string[] input = Console.ReadLine().Split(',');
+
+                // Check if format is correct
+                if (input.Length != 2)
+                {
+                    Console.WriteLine("Format not followed. Please try again.");
+                    continue;
+                }
+
+                // Parse the input as an INT
+                if (!int.TryParse(input[0], out int row) || !int.TryParse(input[1], out int column))
+                {
+                    Console.WriteLine("Non-numeric input. Please try again.");
+                    continue;
+                }
+
+                // Check if the player's input is within the 3x3 board
+                if (row < 0 || row > 2 || column < 0 || column > 2)
+                {
+                    Console.WriteLine("Coordinates out of range. Please try again.");
+                    continue;
+                }
+
+                // Check if the space is already occupied
+                if (board[row, column] != ' ')
+                {
+                    Console.WriteLine("Space already occupied. Please try again.");
+                    continue;
+                }
+
+                // Update the board with player's move and add it to the list of moves (row, column)
+                board[row, column] = 'X';
+                playerMoves.Add((row, column));
+
+                // Check if the player has won
+                if (CheckWin(board, 'X'))
+                {
+                    DisplayBoard(board);
+                    Console.WriteLine("Congratulations to the player for winning!");
+                    break;
+                }
+
+                // Check if the game is a tie
+                if (playerMoves.Count + computerMoves.Count == 9)
+                {
+                    DisplayBoard(board);
+                    Console.WriteLine("It's a tie");
+                    break; // if yes, done
+                }
+
+                // Make sure the computer's random move is not in an occupied space
+                while (board[computerRow, computerColumn] != ' ')
+                {
+                    computerRow = random.Next(0, 3);
+                    computerColumn = random.Next(0, 3);
+                }
+
+                // Update the board with the computer's move and add it to the list of moves (row, column)
+                board[computerRow, computerColumn] = 'O';
+                computerMoves.Add((computerRow, computerColumn));
+
+                // Check if the computer won
+                if (CheckWin(board, 'O'))
+                {
+                    DisplayBoard(board);
+                    Console.WriteLine("Congratulations to the computer for winning!");
+                    break; // if yes, done
+                }
+            }
+        }
+
+        // METHOD 2 (display current state of the board)
+        static void DisplayBoard(char[,] board)
+        {
+            // Column headers and line for separation
+            Console.WriteLine("  0 | 1 | 2");
+            Console.WriteLine("  ---------");
+
+            // to print each row of the board
+            for (int i = 0; i < 3; i++)
+            {
+                // to print row and another line for separation
+                Console.WriteLine($" {board[i, 0]} | {board[i, 1]} | {board[i, 2]}");
+                if (i < 2)
+                {
+                    Console.WriteLine("  ---------");
+                }
+            }
+        }
+
+        // METHOD 3 (check if the player won)
+        static bool CheckWin(char[,] board, char symbol)
+        {
+            // Check rows
+            for (int i = 0; i < 3; i++)
+            {
+                if (board[i, 0] == symbol && board[i, 1] == symbol && board[i, 2] == symbol)
+                {
+                    return true;
+                }
+            }
+
+            // Check columns
+            for (int i = 0; i < 3; i++)
+            {
+                if (board[0, i] == symbol && board[1, i] == symbol && board[2, i] == symbol)
+                {
+                    return true;
+                }
+            }
+
+            // Check diagonals
+            if ((board[0, 0] == symbol && board[1, 1] == symbol && board[2, 2] == symbol) ||
+                (board[0, 2] == symbol && board[1, 1] == symbol && board[2, 0] == symbol))
+            {
+                return true;
+            }
+
+            return false;
+        }
+    }
+}
